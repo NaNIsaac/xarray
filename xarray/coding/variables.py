@@ -139,6 +139,11 @@ def _apply_mask(
     if encoded_fill_values:
         condition = False
         for fv in encoded_fill_values:
+            # Under NEP 50 a float64 fill value is no longer downcast when
+            # compared with lower precision float data, so cast it explicitly
+            # if it fits (GH9381).
+            if data.dtype.kind == "f" and abs(fv) <= np.finfo(data.dtype).max:
+                fv = data.dtype.type(fv)
             condition |= data == fv
         data[condition] = decoded_fill_value
     return data

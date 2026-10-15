@@ -74,6 +74,17 @@ def test_CFMaskCoder_missing_value() -> None:
         encoded, _ = xr.conventions.cf_encoder(decoded.variables, decoded.attrs)
 
 
+@pytest.mark.parametrize("dtype", [np.float16, np.float32])
+def test_CFMaskCoder_decode_float64_fill_value_lower_precision(dtype) -> None:
+    # GH9381
+    original = xr.Variable(("x",), np.array([0, -99.9, 1], dtype=dtype))
+    original.attrs["_FillValue"] = -99.9
+    expected = xr.Variable(("x",), np.array([0, np.nan, 1], dtype=dtype))
+    coder = variables.CFMaskCoder()
+    decoded = coder.decode(original)
+    assert_identical(expected, decoded)
+
+
 @requires_dask
 def test_CFMaskCoder_decode_dask() -> None:
     original = xr.Variable(("x",), [0, -1, 1], {"_FillValue": -1}).chunk()

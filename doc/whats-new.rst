@@ -123,6 +123,11 @@ Deprecations
 
 Bug Fixes
 ~~~~~~~~~
+- :py:func:`decode_cf` now masks ``_FillValue``/``missing_value`` given as
+  a float64 scalar (e.g. a Python ``float``) on ``float32`` and ``float16`` data.
+  Since NumPy 2 the comparison was done in float64 and never matched
+  (:issue:`9381`).
+  By `NaNIsaac <https://github.com/NaNIsaac>`_.
 - Indexing a :py:class:`DataTree` with a path that continues past a variable,
   e.g. ``tree["group/var/x"]``, now raises ``KeyError`` instead of
   ``AttributeError`` (:issue:`9354`, :pull:`11701`).
